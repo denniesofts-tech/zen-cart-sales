@@ -1,13 +1,13 @@
-import { Product, Category } from '@/types/pos';
 import { cn } from '@/lib/utils';
 import { AlertCircle } from 'lucide-react';
+import type { Product, Category } from '@/hooks/useProducts';
 
 const categoryColorMap: Record<string, string> = {
-  'beverages': 'border-l-pos-category-1',
-  'food': 'border-l-pos-category-2',
-  'snacks': 'border-l-pos-category-3',
-  'desserts': 'border-l-pos-category-4',
-  'merchandise': 'border-l-pos-category-5',
+  'category-1': 'border-l-pos-category-1',
+  'category-2': 'border-l-pos-category-2',
+  'category-3': 'border-l-pos-category-3',
+  'category-4': 'border-l-pos-category-4',
+  'category-5': 'border-l-pos-category-5',
 };
 
 interface ProductGridProps {
@@ -17,8 +17,11 @@ interface ProductGridProps {
 }
 
 export function ProductGrid({ products, categories, onProductClick }: ProductGridProps) {
-  const getCategoryColor = (categoryId: string) => {
-    return categoryColorMap[categoryId] || 'border-l-primary';
+  const getCategoryColor = (categoryId: string | null) => {
+    if (!categoryId) return 'border-l-primary';
+    const category = categories.find(c => c.id === categoryId);
+    const color = category?.color || 'category-1';
+    return categoryColorMap[color] || 'border-l-primary';
   };
 
   return (
@@ -34,7 +37,7 @@ export function ProductGrid({ products, categories, onProductClick }: ProductGri
             disabled={isOutOfStock}
             className={cn(
               "group relative flex flex-col p-4 rounded-xl border-l-4 bg-card hover:bg-card/80 text-left transition-all duration-200 min-h-[120px]",
-              getCategoryColor(product.categoryId),
+              getCategoryColor(product.category_id),
               isOutOfStock && "opacity-50 cursor-not-allowed",
               !isOutOfStock && "hover:shadow-pos-md hover:-translate-y-0.5 active:scale-[0.98]"
             )}
@@ -50,7 +53,7 @@ export function ProductGrid({ products, categories, onProductClick }: ProductGri
             
             <div className="flex items-end justify-between mt-2">
               <span className="text-lg font-bold text-primary">
-                ${product.price.toFixed(2)}
+                ${Number(product.price).toFixed(2)}
               </span>
               
               {isLowStock && !isOutOfStock && (
@@ -67,7 +70,7 @@ export function ProductGrid({ products, categories, onProductClick }: ProductGri
               )}
             </div>
             
-            {product.taxRate === 0 && (
+            {product.tax_rate === 0 && (
               <span className="absolute top-2 right-2 text-[10px] px-1.5 py-0.5 rounded bg-success/20 text-success font-medium">
                 TAX FREE
               </span>

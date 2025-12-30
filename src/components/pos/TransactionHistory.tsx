@@ -1,10 +1,10 @@
-import { Transaction } from '@/types/pos';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { History, Banknote, CreditCard, Smartphone, XCircle, RotateCcw, Receipt } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
+import type { DbTransaction } from '@/hooks/useDbTransactions';
 
 const paymentIcons: Record<string, React.ComponentType<{ className?: string }>> = {
   cash: Banknote,
@@ -13,12 +13,13 @@ const paymentIcons: Record<string, React.ComponentType<{ className?: string }>> 
 };
 
 interface TransactionHistoryProps {
-  transactions: Transaction[];
+  transactions: DbTransaction[];
+  isManager: boolean;
   onVoid: (transactionId: string) => void;
   onRefund: (transactionId: string) => void;
 }
 
-export function TransactionHistory({ transactions, onVoid, onRefund }: TransactionHistoryProps) {
+export function TransactionHistory({ transactions, isManager, onVoid, onRefund }: TransactionHistoryProps) {
   return (
     <Sheet>
       <SheetTrigger asChild>
@@ -44,7 +45,7 @@ export function TransactionHistory({ transactions, onVoid, onRefund }: Transacti
           ) : (
             <div className="space-y-3 pr-4">
               {transactions.map((transaction) => {
-                const PaymentIcon = paymentIcons[transaction.paymentMethod];
+                const PaymentIcon = paymentIcons[transaction.payment_method] || Banknote;
                 
                 return (
                   <div
@@ -59,10 +60,10 @@ export function TransactionHistory({ transactions, onVoid, onRefund }: Transacti
                     <div className="flex items-start justify-between mb-2">
                       <div>
                         <p className="text-xs text-muted-foreground font-mono">
-                          {transaction.id}
+                          {transaction.transaction_number}
                         </p>
                         <p className="text-xs text-muted-foreground mt-1">
-                          {format(new Date(transaction.timestamp), 'MMM d, yyyy • h:mm a')}
+                          {format(new Date(transaction.created_at), 'MMM d, yyyy • h:mm a')}
                         </p>
                       </div>
                       <div className="flex items-center gap-2">
@@ -73,16 +74,15 @@ export function TransactionHistory({ transactions, onVoid, onRefund }: Transacti
                           transaction.status === 'voided' && "text-destructive line-through",
                           transaction.status === 'refunded' && "text-accent"
                         )}>
-                          ${transaction.total.toFixed(2)}
+                          ${Number(transaction.total).toFixed(2)}
                         </span>
                       </div>
                     </div>
 
                     <div className="text-xs text-muted-foreground mb-3">
-                      {transaction.items.length} item{transaction.items.length !== 1 ? 's' : ''}
                       {transaction.status !== 'completed' && (
                         <span className={cn(
-                          "ml-2 px-1.5 py-0.5 rounded uppercase font-medium",
+                          "px-1.5 py-0.5 rounded uppercase font-medium",
                           transaction.status === 'voided' && "bg-destructive/20 text-destructive",
                           transaction.status === 'refunded' && "bg-accent/20 text-accent"
                         )}>
@@ -91,7 +91,7 @@ export function TransactionHistory({ transactions, onVoid, onRefund }: Transacti
                       )}
                     </div>
 
-                    {transaction.status === 'completed' && (
+                    {transaction.status === 'completed' && isManager && (
                       <div className="flex gap-2">
                         <Button
                           variant="outline"

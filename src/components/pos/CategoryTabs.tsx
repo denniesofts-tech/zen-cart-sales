@@ -1,6 +1,6 @@
-import { Category } from '@/types/pos';
 import { cn } from '@/lib/utils';
-import { Coffee, UtensilsCrossed, Cookie, Cake, ShoppingBag, LayoutGrid } from 'lucide-react';
+import { Coffee, UtensilsCrossed, Cookie, Cake, ShoppingBag, LayoutGrid, Package } from 'lucide-react';
+import type { Category } from '@/hooks/useProducts';
 
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   Coffee,
@@ -9,9 +9,10 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   Cake,
   ShoppingBag,
   LayoutGrid,
+  Package,
 };
 
-const colorMap: Record<Category['color'], string> = {
+const colorMap: Record<string, string> = {
   'category-1': 'bg-pos-category-1/15 text-pos-category-1 border-pos-category-1/50 hover:bg-pos-category-1/25',
   'category-2': 'bg-pos-category-2/15 text-pos-category-2 border-pos-category-2/50 hover:bg-pos-category-2/25',
   'category-3': 'bg-pos-category-3/15 text-pos-category-3 border-pos-category-3/50 hover:bg-pos-category-3/25',
@@ -19,7 +20,7 @@ const colorMap: Record<Category['color'], string> = {
   'category-5': 'bg-pos-category-5/15 text-pos-category-5 border-pos-category-5/50 hover:bg-pos-category-5/25',
 };
 
-const activeColorMap: Record<Category['color'], string> = {
+const activeColorMap: Record<string, string> = {
   'category-1': 'bg-pos-category-1 text-background border-pos-category-1',
   'category-2': 'bg-pos-category-2 text-background border-pos-category-2',
   'category-3': 'bg-pos-category-3 text-background border-pos-category-3',
@@ -50,8 +51,9 @@ export function CategoryTabs({ categories, activeCategory, onCategoryChange }: C
       </button>
       
       {categories.map(category => {
-        const Icon = iconMap[category.icon] || Coffee;
+        const Icon = iconMap[category.icon] || Package;
         const isActive = activeCategory === category.id;
+        const color = category.color || 'category-1';
         
         return (
           <button
@@ -59,7 +61,9 @@ export function CategoryTabs({ categories, activeCategory, onCategoryChange }: C
             onClick={() => onCategoryChange(category.id)}
             className={cn(
               "flex flex-col items-center justify-center gap-1 min-w-[100px] min-h-[72px] px-4 rounded-xl border-2 transition-all duration-200",
-              isActive ? activeColorMap[category.color] : colorMap[category.color]
+              isActive 
+                ? (activeColorMap[color] || activeColorMap['category-1'])
+                : (colorMap[color] || colorMap['category-1'])
             )}
           >
             <Icon className="h-5 w-5" />
