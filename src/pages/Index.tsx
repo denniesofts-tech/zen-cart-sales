@@ -12,6 +12,7 @@ import { ReceiptModal } from '@/components/pos/ReceiptModal';
 import { TransactionHistory } from '@/components/pos/TransactionHistory';
 import { DailySummary } from '@/components/pos/DailySummary';
 import { SearchBar } from '@/components/pos/SearchBar';
+import { OfflineIndicator } from '@/components/pwa/OfflineIndicator';
 import { Transaction, PaymentMethod } from '@/types/pos';
 import { useToast } from '@/hooks/use-toast';
 import { Store, Clock, LogOut, User } from 'lucide-react';
@@ -164,6 +165,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
+      <OfflineIndicator />
       {/* Header */}
       <header className="flex items-center justify-between px-4 py-3 border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-10">
         <div className="flex items-center gap-3">
