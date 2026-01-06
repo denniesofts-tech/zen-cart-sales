@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAuth } from '@/hooks/useAuth';
+import { InstallButton } from '@/components/pwa/InstallButton';
 import { Store, LogIn, UserPlus, Eye, EyeOff } from 'lucide-react';
 import { z } from 'zod';
 
@@ -197,6 +198,9 @@ export default function Auth() {
             {isSignUp ? 'Sign in instead' : 'Create an account'}
           </Button>
         </div>
+
+        {/* Install Button */}
+        <InstallButton />
       </div>
     </div>
   );
