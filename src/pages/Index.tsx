@@ -15,8 +15,9 @@ import { SearchBar } from '@/components/pos/SearchBar';
 import { OfflineIndicator } from '@/components/pwa/OfflineIndicator';
 import { Transaction, PaymentMethod } from '@/types/pos';
 import { useToast } from '@/hooks/use-toast';
-import { Store, Clock, LogOut, User } from 'lucide-react';
+import { Store, Clock, LogOut, User, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Link } from 'react-router-dom';
 import { format } from 'date-fns';
 
 const Index = () => {
@@ -198,6 +199,12 @@ const Index = () => {
             onVoid={handleVoid}
             onRefund={handleRefund}
           />
+          
+          <Button variant="ghost" size="icon" asChild className="text-muted-foreground">
+            <Link to="/settings">
+              <Settings className="h-5 w-5" />
+            </Link>
+          </Button>
           
           <Button variant="ghost" size="icon" onClick={signOut} className="text-muted-foreground">
             <LogOut className="h-5 w-5" />
