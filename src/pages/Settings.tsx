@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+import { useLock } from '@/contexts/LockContext';
 import { InstallButton } from '@/components/pwa/InstallButton';
+import { PinSetupDialog } from '@/components/auth/PinSetupDialog';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
@@ -14,12 +16,14 @@ import {
   User, 
   Shield, 
   LogOut,
-  Smartphone
+  Smartphone,
+  Lock
 } from 'lucide-react';
 
 export default function Settings() {
   const navigate = useNavigate();
   const { user, profile, loading, signOut, isManager, isAdmin } = useAuth();
+  const { lock, hasPin } = useLock();
   const [darkMode, setDarkMode] = useState(true);
   const [notifications, setNotifications] = useState(true);
 
@@ -126,6 +130,24 @@ export default function Settings() {
               onCheckedChange={setNotifications}
             />
           </div>
+        </section>
+
+        {/* Security - PIN Lock */}
+        <section className="bg-card rounded-xl border border-border p-4 space-y-4">
+          <h3 className="font-semibold flex items-center gap-2">
+            <Lock className="h-4 w-4" />
+            Security
+          </h3>
+          <p className="text-sm text-muted-foreground">
+            Set up a PIN to lock the app after inactivity.
+          </p>
+          <PinSetupDialog />
+          {hasPin && (
+            <Button variant="outline" className="w-full" onClick={lock}>
+              <Lock className="h-4 w-4 mr-2" />
+              Lock Now
+            </Button>
+          )}
         </section>
 
         {/* Install App */}

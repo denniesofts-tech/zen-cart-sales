@@ -9,6 +9,8 @@ import Settings from "./pages/Settings";
 import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
 import { InstallPrompt } from "./components/pwa/InstallPrompt";
+import { LockProvider } from "./contexts/LockContext";
+import { LockScreen } from "./components/auth/LockScreen";
 
 const queryClient = new QueryClient();
 
@@ -19,14 +21,17 @@ const App = () => (
       <Sonner />
       <InstallPrompt />
       <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/auth" element={<Auth />} />
-          <Route path="/settings" element={<Settings />} />
-          <Route path="/admin" element={<Admin />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+        <LockProvider>
+          <LockScreen />
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/auth" element={<Auth />} />
+            <Route path="/settings" element={<Settings />} />
+            <Route path="/admin" element={<Admin />} />
+            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </LockProvider>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
