@@ -17,7 +17,6 @@ import { Transaction, PaymentMethod } from '@/types/pos';
 import { useToast } from '@/hooks/use-toast';
 import { Store, Clock, LogOut, User, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Link } from 'react-router-dom';
 import { format } from 'date-fns';
 
 const Index = () => {
@@ -200,10 +199,13 @@ const Index = () => {
             onRefund={handleRefund}
           />
           
-          <Button variant="ghost" size="icon" asChild className="text-muted-foreground">
-            <Link to="/settings">
-              <Settings className="h-5 w-5" />
-            </Link>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="text-muted-foreground"
+            onClick={() => navigate('/settings')}
+          >
+            <Settings className="h-5 w-5" />
           </Button>
           
           <Button variant="ghost" size="icon" onClick={signOut} className="text-muted-foreground">

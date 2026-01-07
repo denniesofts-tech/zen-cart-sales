@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { InstallButton } from '@/components/pwa/InstallButton';
 import { Button } from '@/components/ui/button';
@@ -150,11 +150,13 @@ export default function Settings() {
             <p className="text-sm text-muted-foreground">
               Manage users, roles, and system settings.
             </p>
-            <Button asChild variant="outline" className="w-full">
-              <Link to="/admin">
-                <Shield className="h-4 w-4 mr-2" />
-                Open Admin Panel
-              </Link>
+            <Button
+              variant="outline"
+              className="w-full"
+              onClick={() => navigate('/admin')}
+            >
+              <Shield className="h-4 w-4 mr-2" />
+              Open Admin Panel
             </Button>
           </section>
         )}
