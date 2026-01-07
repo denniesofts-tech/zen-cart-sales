@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+import { useLock } from '@/contexts/LockContext';
 import { useProducts, Product } from '@/hooks/useProducts';
 import { useCart } from '@/hooks/useCart';
 import { useDbTransactions } from '@/hooks/useDbTransactions';
@@ -15,13 +16,14 @@ import { SearchBar } from '@/components/pos/SearchBar';
 import { OfflineIndicator } from '@/components/pwa/OfflineIndicator';
 import { Transaction, PaymentMethod } from '@/types/pos';
 import { useToast } from '@/hooks/use-toast';
-import { Store, Clock, LogOut, User, Settings } from 'lucide-react';
+import { Store, Clock, LogOut, User, Settings, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { format } from 'date-fns';
 
 const Index = () => {
   const navigate = useNavigate();
   const { user, profile, loading: authLoading, signOut, isManager } = useAuth();
+  const { lock, hasPin } = useLock();
   const { products, categories, loading: productsLoading, decrementStock } = useProducts();
   const { transactions, createTransaction, updateTransactionStatus, getDailySummary } = useDbTransactions(profile?.id || null);
   const cart = useCart();
@@ -198,6 +200,17 @@ const Index = () => {
             onVoid={handleVoid}
             onRefund={handleRefund}
           />
+          
+          {hasPin && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="text-muted-foreground"
+              onClick={lock}
+            >
+              <Lock className="h-5 w-5" />
+            </Button>
+          )}
           
           <Button
             variant="ghost"
