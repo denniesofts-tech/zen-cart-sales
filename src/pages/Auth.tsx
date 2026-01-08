@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAuth } from '@/hooks/useAuth';
 import { InstallButton } from '@/components/pwa/InstallButton';
+import { ForgotPasswordDialog } from '@/components/auth/ForgotPasswordDialog';
 import { Store, LogIn, UserPlus, Eye, EyeOff } from 'lucide-react';
 import { z } from 'zod';
 
@@ -159,6 +160,11 @@ export default function Auth() {
             </div>
             {errors.password && (
               <p className="text-sm text-destructive">{errors.password}</p>
+            )}
+            {!isSignUp && (
+              <div className="text-right">
+                <ForgotPasswordDialog />
+              </div>
             )}
           </div>
 

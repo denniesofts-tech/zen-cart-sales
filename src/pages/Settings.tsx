@@ -1,9 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useLock } from '@/contexts/LockContext';
 import { InstallButton } from '@/components/pwa/InstallButton';
 import { PinSetupDialog } from '@/components/auth/PinSetupDialog';
+import { ProfileSettingsSection } from '@/components/settings/ProfileSettingsSection';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
@@ -98,6 +99,13 @@ export default function Settings() {
             </div>
           </div>
         </section>
+
+        {/* Profile Settings - Name & Password */}
+        <ProfileSettingsSection 
+          profile={profile} 
+          email={user.email} 
+          onProfileUpdate={() => window.location.reload()} 
+        />
 
         {/* App Preferences */}
         <section className="bg-card rounded-xl border border-border p-4 space-y-4">
