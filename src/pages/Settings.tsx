@@ -8,6 +8,13 @@ import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { 
   ArrowLeft, 
   Moon, 
@@ -23,7 +30,7 @@ import {
 export default function Settings() {
   const navigate = useNavigate();
   const { user, profile, loading, signOut, isManager, isAdmin } = useAuth();
-  const { lock, hasPin } = useLock();
+  const { lock, hasPin, autoLockMinutes, setAutoLockMinutes } = useLock();
   const [darkMode, setDarkMode] = useState(true);
   const [notifications, setNotifications] = useState(true);
 
@@ -142,11 +149,38 @@ export default function Settings() {
             Set up a PIN to lock the app after inactivity.
           </p>
           <PinSetupDialog />
+          
           {hasPin && (
-            <Button variant="outline" className="w-full" onClick={lock}>
-              <Lock className="h-4 w-4 mr-2" />
-              Lock Now
-            </Button>
+            <>
+              <Separator />
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label className="font-medium">Auto-lock Timeout</Label>
+                  <p className="text-sm text-muted-foreground">Lock after inactivity</p>
+                </div>
+                <Select
+                  value={autoLockMinutes.toString()}
+                  onValueChange={(value) => setAutoLockMinutes(parseFloat(value))}
+                >
+                  <SelectTrigger className="w-32">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="0.167">10 secs</SelectItem>
+                    <SelectItem value="0.5">30 secs</SelectItem>
+                    <SelectItem value="1">1 min</SelectItem>
+                    <SelectItem value="5">5 mins</SelectItem>
+                    <SelectItem value="15">15 mins</SelectItem>
+                    <SelectItem value="30">30 mins</SelectItem>
+                    <SelectItem value="0">Never</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <Button variant="outline" className="w-full" onClick={lock}>
+                <Lock className="h-4 w-4 mr-2" />
+                Lock Now
+              </Button>
+            </>
           )}
         </section>
 
