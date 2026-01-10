@@ -10,7 +10,7 @@ export const OfflineIndicator = () => {
   return (
     <div
       className={cn(
-        "fixed top-4 right-4 z-50 flex items-center gap-2 rounded-full px-3 py-1.5 text-sm font-medium shadow-lg transition-all duration-300",
+        "fixed top-4 right-20 z-40 flex items-center gap-2 rounded-full px-3 py-1.5 text-sm font-medium shadow-lg transition-all duration-300",
         online
           ? pendingCount > 0
             ? "bg-accent/20 text-accent border border-accent/30"
