@@ -21,6 +21,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { BusinessSettingsSection } from '@/components/settings/BusinessSettingsSection';
+import { ProductManagement } from '@/components/admin/ProductManagement';
 import { ArrowLeft, Shield, Users, RefreshCw } from 'lucide-react';
 import { format } from 'date-fns';
 
@@ -165,9 +166,12 @@ export default function Admin() {
         </Button>
       </header>
 
-      <div className="max-w-4xl mx-auto p-4 space-y-6">
+      <div className="max-w-6xl mx-auto p-4 space-y-6">
         {/* Business Settings - Admin Only */}
         {isAdmin && <BusinessSettingsSection />}
+
+        {/* Product Management */}
+        <ProductManagement />
 
         {/* Users Section */}
         <section className="bg-card rounded-xl border border-border overflow-hidden">
