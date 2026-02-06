@@ -40,8 +40,25 @@ import {
 import { 
   Plus, Pencil, Trash2, FolderOpen, Coffee, Sandwich, IceCream, Cake, Pizza, Salad, Beer, Wine,
   Utensils, ShoppingBag, Gift, Apple, Cookie, Croissant, Soup, Milk, Egg, Fish, Drumstick, Popcorn,
-  Candy, CupSoda, GlassWater, Leaf, Sparkles, Star, Heart, Zap
+  Candy, CupSoda, GlassWater, Leaf, Sparkles, Star, Heart, Zap, GripVertical
 } from 'lucide-react';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 interface Category {
   id: string;
@@ -96,6 +113,93 @@ const getIconComponent = (iconName: string) => {
   return iconData?.icon || Coffee;
 };
 
+interface SortableRowProps {
+  category: Category;
+  onEdit: (category: Category) => void;
+  onDelete: (id: string) => void;
+  getColorClass: (color: string) => string;
+}
+
+function SortableRow({ category, onEdit, onDelete, getColorClass }: SortableRowProps) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: category.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  const IconComponent = getIconComponent(category.icon);
+
+  return (
+    <TableRow ref={setNodeRef} style={style} className={isDragging ? 'bg-muted' : ''}>
+      <TableCell>
+        <button
+          {...attributes}
+          {...listeners}
+          className="cursor-grab active:cursor-grabbing p-1 hover:bg-muted rounded"
+        >
+          <GripVertical className="h-4 w-4 text-muted-foreground" />
+        </button>
+      </TableCell>
+      <TableCell>
+        <IconComponent className="h-5 w-5 text-muted-foreground" />
+      </TableCell>
+      <TableCell className="font-medium">{category.name}</TableCell>
+      <TableCell>
+        <div className="flex items-center gap-2">
+          <div className={`h-4 w-4 rounded-full ${getColorClass(category.color)}`} />
+          <span className="text-sm text-muted-foreground capitalize">
+            {COLORS.find(c => c.value === category.color)?.label || category.color}
+          </span>
+        </div>
+      </TableCell>
+      <TableCell className="text-right">
+        <div className="flex justify-end gap-2">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => onEdit(category)}
+          >
+            <Pencil className="h-4 w-4" />
+          </Button>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant="ghost" size="icon" className="text-destructive">
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Delete Category</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Are you sure you want to delete "{category.name}"? Products in this category will become uncategorized.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={() => onDelete(category.id)}
+                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                >
+                  Delete
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </div>
+      </TableCell>
+    </TableRow>
+  );
+}
+
 export function CategoryManagement() {
   const { toast } = useToast();
   const [categories, setCategories] = useState<Category[]>([]);
@@ -106,8 +210,14 @@ export function CategoryManagement() {
     name: '',
     color: 'category-1',
     icon: 'Coffee',
-    sort_order: 0,
   });
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
 
   const fetchCategories = async () => {
     setLoading(true);
@@ -137,7 +247,6 @@ export function CategoryManagement() {
       name: '',
       color: 'category-1',
       icon: 'Coffee',
-      sort_order: 0,
     });
     setEditingCategory(null);
   };
@@ -149,7 +258,6 @@ export function CategoryManagement() {
         name: category.name,
         color: category.color,
         icon: category.icon,
-        sort_order: category.sort_order,
       });
     } else {
       resetForm();
@@ -169,17 +277,14 @@ export function CategoryManagement() {
       return;
     }
 
-    const categoryData = {
-      name: formData.name.trim(),
-      color: formData.color,
-      icon: formData.icon,
-      sort_order: formData.sort_order,
-    };
-
     if (editingCategory) {
       const { error } = await supabase
         .from('categories')
-        .update(categoryData)
+        .update({
+          name: formData.name.trim(),
+          color: formData.color,
+          icon: formData.icon,
+        })
         .eq('id', editingCategory.id);
 
       if (error) {
@@ -193,9 +298,19 @@ export function CategoryManagement() {
 
       toast({ title: 'Category updated successfully' });
     } else {
+      // New category gets added to the end
+      const maxOrder = categories.length > 0 
+        ? Math.max(...categories.map(c => c.sort_order)) + 1 
+        : 0;
+
       const { error } = await supabase
         .from('categories')
-        .insert(categoryData);
+        .insert({
+          name: formData.name.trim(),
+          color: formData.color,
+          icon: formData.icon,
+          sort_order: maxOrder,
+        });
 
       if (error) {
         toast({
@@ -233,6 +348,45 @@ export function CategoryManagement() {
     fetchCategories();
   };
 
+  const handleDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (!over || active.id === over.id) {
+      return;
+    }
+
+    const oldIndex = categories.findIndex(c => c.id === active.id);
+    const newIndex = categories.findIndex(c => c.id === over.id);
+
+    const newCategories = arrayMove(categories, oldIndex, newIndex);
+    setCategories(newCategories);
+
+    // Update sort_order for all affected categories
+    const updates = newCategories.map((category, index) => ({
+      id: category.id,
+      sort_order: index,
+    }));
+
+    for (const update of updates) {
+      const { error } = await supabase
+        .from('categories')
+        .update({ sort_order: update.sort_order })
+        .eq('id', update.id);
+
+      if (error) {
+        toast({
+          title: 'Error updating order',
+          description: error.message,
+          variant: 'destructive',
+        });
+        fetchCategories(); // Revert on error
+        return;
+      }
+    }
+
+    toast({ title: 'Category order updated' });
+  };
+
   const getColorClass = (colorValue: string) => {
     return COLORS.find(c => c.value === colorValue)?.class || 'bg-gray-500';
   };
@@ -246,7 +400,7 @@ export function CategoryManagement() {
             Category Management
           </h2>
           <p className="text-sm text-muted-foreground mt-1">
-            Add, edit, or remove product categories
+            Drag to reorder • Add, edit, or remove categories
           </p>
         </div>
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
@@ -283,7 +437,7 @@ export function CategoryManagement() {
                   <SelectTrigger>
                     <SelectValue placeholder="Select icon" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="max-h-60">
                     {ICONS.map((icon) => {
                       const IconComponent = icon.icon;
                       return (
@@ -321,17 +475,6 @@ export function CategoryManagement() {
                 </Select>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="sort_order">Sort Order</Label>
-                <Input
-                  id="sort_order"
-                  type="number"
-                  value={formData.sort_order}
-                  onChange={(e) => setFormData(prev => ({ ...prev, sort_order: parseInt(e.target.value) || 0 }))}
-                  placeholder="0"
-                />
-              </div>
-
               <div className="flex justify-end gap-2 pt-4">
                 <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>
                   Cancel
@@ -349,10 +492,10 @@ export function CategoryManagement() {
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead className="w-10"></TableHead>
               <TableHead>Icon</TableHead>
               <TableHead>Name</TableHead>
               <TableHead>Color</TableHead>
-              <TableHead>Order</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -370,61 +513,26 @@ export function CategoryManagement() {
                 </TableCell>
               </TableRow>
             ) : (
-              categories.map((category) => {
-                const IconComponent = getIconComponent(category.icon);
-                return (
-                  <TableRow key={category.id}>
-                    <TableCell>
-                      <IconComponent className="h-5 w-5 text-muted-foreground" />
-                    </TableCell>
-                    <TableCell className="font-medium">{category.name}</TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <div className={`h-4 w-4 rounded-full ${getColorClass(category.color)}`} />
-                        <span className="text-sm text-muted-foreground capitalize">
-                          {COLORS.find(c => c.value === category.color)?.label || category.color}
-                        </span>
-                      </div>
-                    </TableCell>
-                    <TableCell>{category.sort_order}</TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-end gap-2">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleOpenDialog(category)}
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </Button>
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <Button variant="ghost" size="icon" className="text-destructive">
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>Delete Category</AlertDialogTitle>
-                              <AlertDialogDescription>
-                                Are you sure you want to delete "{category.name}"? Products in this category will become uncategorized.
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel>Cancel</AlertDialogCancel>
-                              <AlertDialogAction
-                                onClick={() => handleDelete(category.id)}
-                                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                              >
-                                Delete
-                              </AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                );
-              })
+              <DndContext
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                onDragEnd={handleDragEnd}
+              >
+                <SortableContext
+                  items={categories.map(c => c.id)}
+                  strategy={verticalListSortingStrategy}
+                >
+                  {categories.map((category) => (
+                    <SortableRow
+                      key={category.id}
+                      category={category}
+                      onEdit={handleOpenDialog}
+                      onDelete={handleDelete}
+                      getColorClass={getColorClass}
+                    />
+                  ))}
+                </SortableContext>
+              </DndContext>
             )}
           </TableBody>
         </Table>
