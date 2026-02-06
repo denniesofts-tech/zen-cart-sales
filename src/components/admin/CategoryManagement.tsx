@@ -37,7 +37,11 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
-import { Plus, Pencil, Trash2, FolderOpen, Coffee, Sandwich, IceCream, Cake, Pizza, Salad, Beer, Wine } from 'lucide-react';
+import { 
+  Plus, Pencil, Trash2, FolderOpen, Coffee, Sandwich, IceCream, Cake, Pizza, Salad, Beer, Wine,
+  Utensils, ShoppingBag, Gift, Apple, Cookie, Croissant, Soup, Milk, Egg, Fish, Drumstick, Popcorn,
+  Candy, CupSoda, GlassWater, Leaf, Sparkles, Star, Heart, Zap
+} from 'lucide-react';
 
 interface Category {
   id: string;
@@ -57,6 +61,26 @@ const ICONS = [
   { value: 'Salad', label: 'Salad', icon: Salad },
   { value: 'Beer', label: 'Beer', icon: Beer },
   { value: 'Wine', label: 'Wine', icon: Wine },
+  { value: 'Utensils', label: 'Utensils', icon: Utensils },
+  { value: 'ShoppingBag', label: 'Shopping Bag', icon: ShoppingBag },
+  { value: 'Gift', label: 'Gift', icon: Gift },
+  { value: 'Apple', label: 'Apple', icon: Apple },
+  { value: 'Cookie', label: 'Cookie', icon: Cookie },
+  { value: 'Croissant', label: 'Croissant', icon: Croissant },
+  { value: 'Soup', label: 'Soup', icon: Soup },
+  { value: 'Milk', label: 'Milk', icon: Milk },
+  { value: 'Egg', label: 'Egg', icon: Egg },
+  { value: 'Fish', label: 'Fish', icon: Fish },
+  { value: 'Drumstick', label: 'Drumstick', icon: Drumstick },
+  { value: 'Popcorn', label: 'Popcorn', icon: Popcorn },
+  { value: 'Candy', label: 'Candy', icon: Candy },
+  { value: 'CupSoda', label: 'Soda', icon: CupSoda },
+  { value: 'GlassWater', label: 'Water', icon: GlassWater },
+  { value: 'Leaf', label: 'Leaf', icon: Leaf },
+  { value: 'Sparkles', label: 'Sparkles', icon: Sparkles },
+  { value: 'Star', label: 'Star', icon: Star },
+  { value: 'Heart', label: 'Heart', icon: Heart },
+  { value: 'Zap', label: 'Zap', icon: Zap },
 ];
 
 const COLORS = [
