@@ -22,6 +22,7 @@ import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { BusinessSettingsSection } from '@/components/settings/BusinessSettingsSection';
 import { ProductManagement } from '@/components/admin/ProductManagement';
+import { CategoryManagement } from '@/components/admin/CategoryManagement';
 import { ArrowLeft, Shield, Users, RefreshCw } from 'lucide-react';
 import { format } from 'date-fns';
 
@@ -169,6 +170,9 @@ export default function Admin() {
       <div className="max-w-6xl mx-auto p-4 space-y-6">
         {/* Business Settings - Admin Only */}
         {isAdmin && <BusinessSettingsSection />}
+
+        {/* Category Management */}
+        <CategoryManagement />
 
         {/* Product Management */}
         <ProductManagement />
