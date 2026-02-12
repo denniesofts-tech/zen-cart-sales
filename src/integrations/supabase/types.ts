@@ -65,6 +65,45 @@ export type Database = {
         }
         Relationships: []
       }
+      invites: {
+        Row: {
+          code: string
+          created_at: string
+          created_by: string
+          expires_at: string | null
+          id: string
+          max_uses: number
+          role: Database["public"]["Enums"]["app_role"]
+          use_count: number
+          used_at: string | null
+          used_by: string | null
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          created_by: string
+          expires_at?: string | null
+          id?: string
+          max_uses?: number
+          role?: Database["public"]["Enums"]["app_role"]
+          use_count?: number
+          used_at?: string | null
+          used_by?: string | null
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          created_by?: string
+          expires_at?: string | null
+          id?: string
+          max_uses?: number
+          role?: Database["public"]["Enums"]["app_role"]
+          use_count?: number
+          used_at?: string | null
+          used_by?: string | null
+        }
+        Relationships: []
+      }
       products: {
         Row: {
           category_id: string | null
@@ -285,7 +324,7 @@ export type Database = {
       is_staff: { Args: { _user_id: string }; Returns: boolean }
     }
     Enums: {
-      app_role: "cashier" | "manager" | "admin"
+      app_role: "cashier" | "manager" | "admin" | "cook" | "waiter"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -413,7 +452,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["cashier", "manager", "admin"],
+      app_role: ["cashier", "manager", "admin", "cook", "waiter"],
     },
   },
 } as const
