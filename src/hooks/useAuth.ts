@@ -7,7 +7,7 @@ interface Profile {
   id: string;
   user_id: string;
   name: string;
-  role: 'cashier' | 'manager' | 'admin';
+  role: 'cashier' | 'manager' | 'admin' | 'cook' | 'waiter';
   pin: string | null;
 }
 
@@ -96,7 +96,7 @@ export function useAuth() {
     return { error: null };
   };
 
-  const signUp = async (email: string, password: string, name: string, role: 'cashier' | 'manager' = 'cashier') => {
+  const signUp = async (email: string, password: string, name: string, role: 'cashier' | 'manager' | 'admin' | 'cook' | 'waiter' = 'cashier') => {
     const redirectUrl = `${window.location.origin}/`;
     
     const { error } = await supabase.auth.signUp({

@@ -23,6 +23,7 @@ import { useToast } from '@/hooks/use-toast';
 import { BusinessSettingsSection } from '@/components/settings/BusinessSettingsSection';
 import { ProductManagement } from '@/components/admin/ProductManagement';
 import { CategoryManagement } from '@/components/admin/CategoryManagement';
+import { InviteManagement } from '@/components/admin/InviteManagement';
 import { ArrowLeft, Shield, Users, RefreshCw } from 'lucide-react';
 import { format } from 'date-fns';
 
@@ -30,7 +31,7 @@ interface UserProfile {
   id: string;
   user_id: string;
   name: string;
-  role: 'cashier' | 'manager' | 'admin';
+  role: 'cashier' | 'manager' | 'admin' | 'cook' | 'waiter';
   created_at: string;
 }
 
@@ -80,7 +81,7 @@ export default function Admin() {
     }
   }, [user, isManager, isAdmin]);
 
-  const handleRoleChange = async (userId: string, profileId: string, newRole: 'cashier' | 'manager' | 'admin') => {
+  const handleRoleChange = async (userId: string, profileId: string, newRole: 'cashier' | 'manager' | 'admin' | 'cook' | 'waiter') => {
     setUpdatingRole(profileId);
 
     // Update profile role
@@ -171,6 +172,9 @@ export default function Admin() {
         {/* Business Settings - Admin Only */}
         {isAdmin && <BusinessSettingsSection />}
 
+        {/* Invite Management */}
+        <InviteManagement />
+
         {/* Category Management */}
         <CategoryManagement />
 
@@ -215,7 +219,7 @@ export default function Admin() {
                       {isAdmin ? (
                         <Select
                           value={profile.role}
-                          onValueChange={(value: 'cashier' | 'manager' | 'admin') => 
+                          onValueChange={(value: 'cashier' | 'manager' | 'admin' | 'cook' | 'waiter') => 
                             handleRoleChange(profile.user_id, profile.id, value)
                           }
                           disabled={updatingRole === profile.id}
@@ -227,6 +231,8 @@ export default function Admin() {
                             <SelectItem value="cashier">Cashier</SelectItem>
                             <SelectItem value="manager">Manager</SelectItem>
                             <SelectItem value="admin">Admin</SelectItem>
+                            <SelectItem value="cook">Cook</SelectItem>
+                            <SelectItem value="waiter">Waiter</SelectItem>
                           </SelectContent>
                         </Select>
                       ) : (
@@ -254,8 +260,10 @@ export default function Admin() {
           <h3 className="font-medium text-sm mb-2">Role Permissions</h3>
           <ul className="text-sm text-muted-foreground space-y-1">
             <li><strong>Cashier:</strong> Process transactions, view products</li>
-            <li><strong>Manager:</strong> All cashier permissions + manage products, void/refund transactions</li>
+            <li><strong>Manager:</strong> All cashier permissions + manage products, void/refund transactions, create invites</li>
             <li><strong>Admin:</strong> All manager permissions + manage users and roles</li>
+            <li><strong>Cook:</strong> View orders and kitchen tasks</li>
+            <li><strong>Waiter:</strong> View orders and serve customers</li>
           </ul>
         </section>
       </div>
