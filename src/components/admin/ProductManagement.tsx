@@ -41,7 +41,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
-import { Package, Plus, Pencil, Trash2, Upload, X, RefreshCw } from 'lucide-react';
+import { Package, Plus, Pencil, Trash2, Upload, X, RefreshCw, Search } from 'lucide-react';
 
 interface ProductFormData {
   name: string;
@@ -78,6 +78,17 @@ export function ProductManagement() {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filterCategory, setFilterCategory] = useState('all');
+
+  const filteredProducts = products.filter((product) => {
+    const matchesSearch = searchQuery === '' || 
+      product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (product.sku && product.sku.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (product.description && product.description.toLowerCase().includes(searchQuery.toLowerCase()));
+    const matchesCategory = filterCategory === 'all' || product.category_id === filterCategory;
+    return matchesSearch && matchesCategory;
+  });
 
   const openCreate = () => {
     setEditingProduct(null);
@@ -246,7 +257,9 @@ export function ProductManagement() {
             Product Management
           </h2>
           <p className="text-sm text-muted-foreground mt-1">
-            {products.length} products total
+            {filteredProducts.length === products.length
+              ? `${products.length} products total`
+              : `${filteredProducts.length} of ${products.length} products`}
           </p>
         </div>
         <div className="flex gap-2">
@@ -259,6 +272,41 @@ export function ProductManagement() {
             Add Product
           </Button>
         </div>
+      </div>
+
+      {/* Search & Filter Bar */}
+      <div className="p-4 border-b border-border flex flex-col sm:flex-row gap-3">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            type="text"
+            placeholder="Search by name, SKU, or description..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-9 pr-9"
+          />
+          {searchQuery && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7"
+              onClick={() => setSearchQuery('')}
+            >
+              <X className="h-3.5 w-3.5" />
+            </Button>
+          )}
+        </div>
+        <Select value={filterCategory} onValueChange={setFilterCategory}>
+          <SelectTrigger className="w-full sm:w-44">
+            <SelectValue placeholder="All categories" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All categories</SelectItem>
+            {categories.map((cat) => (
+              <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       <div className="overflow-x-auto">
@@ -274,7 +322,7 @@ export function ProductManagement() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {products.map((product) => (
+            {filteredProducts.map((product) => (
               <TableRow key={product.id}>
                 <TableCell>
                   <div className="flex items-center gap-3">
@@ -323,10 +371,12 @@ export function ProductManagement() {
                 </TableCell>
               </TableRow>
             ))}
-            {products.length === 0 && (
+            {filteredProducts.length === 0 && (
               <TableRow>
                 <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
-                  No products yet. Click "Add Product" to create one.
+                  {products.length === 0
+                    ? 'No products yet. Click "Add Product" to create one.'
+                    : 'No products match your search.'}
                 </TableCell>
               </TableRow>
             )}
